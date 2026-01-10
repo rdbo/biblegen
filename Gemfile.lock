@@ -1,29 +1,29 @@
 GEM
   remote: https://rubygems.org/
   specs:
-    bigdecimal (3.3.1)
-    matrix (0.4.3)
-    pdf-core (0.10.0)
-    prawn (2.5.0)
-      matrix (~> 0.4)
-      pdf-core (~> 0.10.0)
-      ttfunk (~> 1.8)
-    ttfunk (1.8.0)
-      bigdecimal (~> 3.1)
+    cmdparse (3.0.7)
+    geom2d (0.4.1)
+    hexapdf (1.5.0)
+      cmdparse (~> 3.0, >= 3.0.3)
+      geom2d (~> 0.4, >= 0.4.1)
+      openssl (>= 2.2.1)
+      strscan (>= 3.1.2)
+    openssl (4.0.0)
+    strscan (3.1.7)
 
 PLATFORMS
   ruby
   x86_64-linux-musl
 
 DEPENDENCIES
-  prawn
+  hexapdf
 
 CHECKSUMS
-  bigdecimal (3.3.1) sha256=eaa01e228be54c4f9f53bf3cc34fe3d5e845c31963e7fcc5bedb05a4e7d52218
-  matrix (0.4.3) sha256=a0d5ab7ddcc1973ff690ab361b67f359acbb16958d1dc072b8b956a286564c5b
-  pdf-core (0.10.0) sha256=0a5d101e2063c01e3f941e1ee47cbb97f1adfc1395b58372f4f65f1300f3ce91
-  prawn (2.5.0) sha256=f4e20e3b4f30bf5b9ae37dad15eb421831594553aa930b2391b0fa0a99c43cb6
-  ttfunk (1.8.0) sha256=a7cbc7e489cc46e979dde04d34b5b9e4f5c8f1ee5fc6b1a7be39b829919d20ca
+  cmdparse (3.0.7) sha256=f7c5cace10bec6abf853370ae095e4b97a84ed9d847b3fb38f41cc4fbc950739
+  geom2d (0.4.1) sha256=ea0998ea90c4f2752e24fe13d85a4f89bee689d151316140ebcc6369bf634ed9
+  hexapdf (1.5.0) sha256=05ab16c894ef59a8b65fdc5f5eeca941d7c0fc85a02c81728c3db9321d8e2438
+  openssl (4.0.0) sha256=185711ed93d4e9c9a9db6efea7edb202dfe04f7d3692fbab988e3d84e498ee91
+  strscan (3.1.7) sha256=5f76462b94a3ea50b44973225b7d75b2cb96d4e1bee9ef1319b99ca117b72c8c
 
 BUNDLED WITH
   4.0.3
