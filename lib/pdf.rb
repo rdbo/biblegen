@@ -1,8 +1,29 @@
 module Bible
   require 'hexapdf'
 
+  class Chapter
+    def to_pdf!(composer)
+      composer.text(self.title + "\n\n", font_bold: true)
+      composer.formatted_text(
+        self.versicles.flat_map{|x| [{text: x[0].to_s + ". ", fill_color: [0.5, 0.5, 0.5]}, x[1], "\n"]
+        }
+      )
+      composer.text("\n")
+    end
+  end
+
   class Book
-    def to_pdf!(doc)
+    def to_pdf!(composer)
+      composer.text(
+        self.name,
+        text_align: :center,
+        font_size: 18,
+        font_bold: true
+      )
+      self.chapters.each do |chapter|
+        chapter.to_pdf!(composer)
+      end
+      composer.new_page
     end
   end
 
@@ -24,6 +45,10 @@ module Bible
         font_size: 48,
         font_bold: true
       )
+      self.books[...3].each do |book|
+        book.to_pdf!(composer)
+      end
+
       composer
     end
   end
