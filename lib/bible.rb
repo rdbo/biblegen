@@ -16,11 +16,11 @@ module Bible
   end
 
   module Edition
-    CATHOLIC_PD2009 = "catholic" # Catholic Public Domain Version (2009)
     CATHOLIC_CHALLONER = "challoner" # Douay-Rheims
+    CATHOLIC_PD2009 = "catholic" # Catholic Public Domain Version (2009)
 
     def self.values
-      [CATHOLIC_PD2009, CATHOLIC_CHALLONER]
+      [CATHOLIC_CHALLONER, CATHOLIC_PD2009]
     end
   end
 

@@ -53,7 +53,7 @@ module Bible
         style: :bible_title
       )
 
-      self.books[...3].each do |book|
+      self.books.each do |book|
         book.to_pdf!(composer)
       end
 

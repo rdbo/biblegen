@@ -1,0 +1,97 @@
+#!/usr/bin/ruby
+# Made by Rdbo
+
+require_relative '../lib/bible.rb'
+require 'fileutils'
+require 'logger'
+require 'optparse'
+require 'pathname'
+
+options = {
+  edition: Bible::Edition.values.first,
+  format: 'json',
+  cache_dir: './cache',
+  force: false
+}
+$parser = OptionParser.new do |opts|
+  opts.banner = "Usage: biblegen [OPTIONS]"
+
+  opts.on("-e", "--edition=EDITION", "Bible edition (#{Bible::Edition.values.join("|")}). Default: #{options[:edition]}") { |v|
+    options[:edition] = v
+  }
+  opts.on("-c", "--cache-dir=DIR", "Cache directory for output files. Default: #{options[:cache_dir]}") { |v| options[:cache_dir] = v }
+  opts.on("-f", "--format=FMT", String, "File format (json|pdf). Default: #{options[:format]}") { |v| options[:format] = v }
+  opts.on("--force", "Override output file, if it exists") { options[:force] = true }
+  opts.on("--help", "Show this help") { puts opts; exit }
+end
+
+def usage()
+  warn $parser
+  exit 1
+end
+
+begin
+  $parser.parse!(ARGV)
+rescue OptionParser::InvalidOption, OptionParser::MissingArgument => e
+  warn e.message
+  usage
+end
+
+edition = options[:edition]
+if not Bible::Edition.values.include?(edition)
+  warn "[!] Invalid edition: #{options[:edition]}"
+  usage
+end
+
+format = options[:format].downcase
+if not ["json", "pdf"].include?(format)
+  warn "[!] Invalid format: #{format}"
+  usage
+end
+
+cache_dir = options[:cache_dir]
+begin
+  FileUtils.mkdir_p(cache_dir)
+rescue
+  warn "[!] Failed to create cache directory: #{cache_dir}"
+  exit 1
+end
+
+out_file = "#{cache_dir}/bible.#{format}"
+
+puts "[*] OPTIONS"
+puts " - Edition: #{edition.capitalize}" if format != "pdf"
+puts " - Format: #{format.upcase}"
+puts " - Cache directory: #{cache_dir}"
+puts " - Output file: #{out_file}"
+puts " - Force: #{options[:force]}"
+
+if File.exist?(out_file) and not options[:force]
+  warn "[!] Output file already exists: #{out_file}"
+  exit 1
+end
+
+if format == "pdf"
+  require_relative '../lib/pdf.rb'
+  json_file = "#{cache_dir}/bible.json"
+  if not File.exist?(json_file)
+    warn "[!] Missing 'bible.json' file! Generate the JSON first, then the PDF."
+    exit 1
+  end
+
+  bible = Bible::Bible.from_hash(JSON.parse(File.read(json_file), symbolize_names: true))
+
+  puts "[*] Generating PDF..."
+  pdf = bible.to_pdf
+  puts "[*] Saving Bible document to '#{out_file}'..."
+  pdf.write(out_file)
+  puts "[*] Done"
+else
+  puts "[*] Generating Bible..."
+  generator = Bible::Generator.new(cache_dir: cache_dir, log_level: Logger::DEBUG)
+  bible = generator.generate(edition)
+
+  puts "[*] Saving parsed Bible to '#{out_file}'..."
+  File.write(out_file, JSON.pretty_generate(bible))
+  puts "[*] Done"
+end
