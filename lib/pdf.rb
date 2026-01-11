@@ -2,6 +2,19 @@ module Bible
   require 'hexapdf'
   require 'date'
 
+  class HexaPDF::Composer
+    # Hack to go back to Table of Contents page
+    def go_to_page(page)
+      new_page() # Reset some stuff
+      dummy_page = @page
+
+      @page = page
+      @canvas = @page.canvas
+
+      @document.pages.delete(dummy_page)
+    end
+  end
+
   class Chapter
     def to_pdf!(composer)
       composer.text(self.title + "\n\n", style: :chapter_title)
@@ -32,7 +45,7 @@ module Bible
       composer.styles(
         base: {},
         bible_title: { text_valign: :center, text_align: :center, font_size: 48, font_bold: true },
-        book_title: { font_size: 18, font_bold: true, text_align: :center },
+        book_title: { font_size: 18, font_bold: true, text_align: :center, margin: [12, 0] },
         chapter_title: { font_bold: true },
         versicle_number: { fill_color: [0.5, 0.5, 0.5] }
       )
@@ -53,7 +66,18 @@ module Bible
         style: :bible_title
       )
 
-      self.books.each do |book|
+      # Allocate space for table of contents
+      books = self.books # [...3]
+      table_of_contents_style = composer.new_page
+      table_of_contents_page = composer.page
+
+      # Generate book texts
+      composer.new_page
+
+      book_title_pages = []
+      books.each do |book|
+        book_title_page = composer.page
+        book_title_pages.push(book_title_page)
         book.to_pdf!(composer)
       end
 
@@ -87,6 +111,15 @@ module Bible
       end
 
       composer.image(stamp, width: 300, height: 300, align: :center, valign: :center)
+
+      # Generate table of contents
+      composer.go_to_page(table_of_contents_page)
+      composer.text("Table of Contents", style: :book_title)
+      for i in 0...books.length
+        book_name = books[i].name
+        page_index = (book_title_pages[i].index + 1).to_s
+        composer.formatted_text([book_name, {text: '.', fill_horizontal: 1}, page_index], font_bold: :false)
+      end
 
       composer
     end
