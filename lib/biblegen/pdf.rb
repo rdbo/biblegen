@@ -1,4 +1,4 @@
-module Bible
+module BibleGen
   require 'hexapdf'
   require 'date'
 

@@ -1,14 +1,14 @@
 #!/usr/bin/ruby
 # Made by Rdbo
 
-require_relative '../lib/bible.rb'
+require_relative '../lib/biblegen.rb'
 require 'fileutils'
 require 'logger'
 require 'optparse'
 require 'pathname'
 
 options = {
-  edition: Bible::Edition.values.first,
+  edition: BibleGen::Edition.values.first,
   format: 'json',
   cache_dir: './cache',
   force: false
@@ -16,7 +16,7 @@ options = {
 $parser = OptionParser.new do |opts|
   opts.banner = "Usage: biblegen [OPTIONS]"
 
-  opts.on("-e", "--edition=EDITION", "Bible edition (#{Bible::Edition.values.join("|")}). Default: #{options[:edition]}") { |v|
+  opts.on("-e", "--edition=EDITION", "Bible edition (#{BibleGen::Edition.values.join("|")}). Default: #{options[:edition]}") { |v|
     options[:edition] = v
   }
   opts.on("-c", "--cache-dir=DIR", "Cache directory for output files. Default: #{options[:cache_dir]}") { |v| options[:cache_dir] = v }
@@ -38,7 +38,7 @@ rescue OptionParser::InvalidOption, OptionParser::MissingArgument => e
 end
 
 edition = options[:edition]
-if not Bible::Edition.values.include?(edition)
+if not BibleGen::Edition.values.include?(edition)
   warn "[!] Invalid edition: #{options[:edition]}"
   usage
 end
@@ -72,14 +72,14 @@ if File.exist?(out_file) and not options[:force]
 end
 
 if format == "pdf"
-  require_relative '../lib/pdf.rb'
+  require_relative '../lib/biblegen/pdf.rb'
   json_file = "#{cache_dir}/bible.json"
   if not File.exist?(json_file)
     warn "[!] Missing 'bible.json' file! Generate the JSON first, then the PDF."
     exit 1
   end
 
-  bible = Bible::Bible.from_hash(JSON.parse(File.read(json_file), symbolize_names: true))
+  bible = BibleGen::Bible.from_hash(JSON.load_file(json_file, symbolize_names: true))
 
   puts "[*] Generating PDF..."
   pdf = bible.to_pdf
@@ -88,7 +88,7 @@ if format == "pdf"
   puts "[*] Done"
 else
   puts "[*] Generating Bible..."
-  generator = Bible::Generator.new(cache_dir: cache_dir, log_level: Logger::DEBUG)
+  generator = BibleGen::Generator.new(cache_dir: cache_dir, log_level: Logger::DEBUG)
   bible = generator.generate(edition)
 
   puts "[*] Saving parsed Bible to '#{out_file}'..."

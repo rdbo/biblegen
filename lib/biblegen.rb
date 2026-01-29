@@ -1,6 +1,6 @@
 # Made by Rdbo
 
-module Bible
+module BibleGen
   require 'net/http'
   require 'fileutils'
   require 'json'
