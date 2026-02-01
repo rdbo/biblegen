@@ -74,12 +74,56 @@ module BibleGen
     end
   end
 
+  Citation = Struct.new(:header, :versicles)
+
   class Bible
     attr_reader :edition, :books
     def initialize(edition, date, books)
       @edition = edition
       @date = date
       @books = books
+    end
+
+    def citation(book_name, chapter_num, versicle_start, versicle_end=nil)
+      raise "Invalid parameters" if
+        not book_name or
+        chapter_num < 1 or
+        versicle_start < 1 or
+        (versicle_end and versicle_end < 1 || versicle_end < versicle_start)
+
+      # Find exact book match
+      book_name.downcase! # All the searches use lowercase
+      book = @books.find{|x| x.name.downcase == book_name}
+
+      # Find partial book name match
+      # (e.g '1PET' for '1 Peter')
+      if not book
+        book = @books.find{ |x|
+          cur_name = x.name.downcase
+          cur_name.start_with?(book_name) ||
+            cur_name.gsub(/\s/, "").start_with?(book_name)
+        }
+      end
+
+      raise "Book not found: #{book_name}" unless book
+
+      chapter = book.chapters[chapter_num - 1]
+      raise "Invalid chapter '#{chapter_num}' for book: #{book_name}" unless chapter
+
+      versicle_keys = chapter.versicles.keys
+      raise "Invalid versicle start" if versicle_start >= versicle_keys.length
+
+      versicle_end = if not versicle_end
+                       versicle_start
+                     else
+                       # Cap versicle_end to the max versicle index
+                       [versicle_end, versicle_keys.length - 1].min
+                     end
+      versicle_keys = versicle_keys[(versicle_start - 1)..(versicle_end - 1)]
+      versicles = versicle_keys.map{|x| [x, chapter.versicles[x]]}.to_h
+
+      header = "#{chapter.title}:#{versicle_start}#{versicle_end != versicle_start ? "-#{versicle_end}" : ""}"
+      Citation.new(header, versicles)
     end
 
     def self.from_hash(hash)
