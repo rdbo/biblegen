@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name          = 'biblegen'
-  s.version       = '1.1.0'
+  s.version       = '1.3.0'
   s.summary       = 'A Catholic Bible generator'
   s.description   = 'Generate and parse the Catholic Bible in different formats'
   s.authors       = ['Rdbo']
