@@ -92,7 +92,7 @@ module BibleGen
         (versicle_end and versicle_end < 1 || versicle_end < versicle_start)
 
       # Find exact book match
-      book_name.downcase! # All the searches use lowercase
+      book_name = book_name.downcase # All the searches use lowercase
       book = @books.find{|x| x.name.downcase == book_name}
 
       # Find partial book name match
