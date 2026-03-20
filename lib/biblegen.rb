@@ -117,7 +117,8 @@ module BibleGen
                        versicle_start
                      else
                        # Cap versicle_end to the max versicle index
-                       [versicle_end, versicle_keys.length - 1].min
+                       # NOTE: We should not do `length - 1` here
+                       [versicle_end, versicle_keys.length].min
                      end
       versicle_keys = versicle_keys[(versicle_start - 1)..(versicle_end - 1)]
       versicles = versicle_keys.map{|x| [x, chapter.versicles[x]]}.to_h
