@@ -111,10 +111,12 @@ module BibleGen
       raise "Invalid chapter '#{chapter_num}' for book: #{book_name}" unless chapter
 
       versicle_keys = chapter.versicles.keys
-      raise "Invalid versicle start" if versicle_start >= versicle_keys.length
+      raise "Invalid versicle start" if versicle_start > versicle_keys.length
 
       versicle_end = if not versicle_end
                        versicle_start
+                     elsif versicle_end == -1
+                       versicle_end = versicle_keys.length
                      else
                        # Cap versicle_end to the max versicle index
                        # NOTE: We should not do `length - 1` here
